@@ -911,6 +911,21 @@ class QueryGrammar extends BaseGrammar
     }
 
     /**
+     * Compile bucket selector aggregation
+     *
+     * @param  array  $aggregation
+     * @return array
+     */
+    protected function compileBucketSelectorAggregation(array $aggregation): array
+    {
+        $compiled = [
+            'bucket_selector' => $aggregation['args']
+        ];
+
+        return $compiled;
+    }
+
+    /**
      * Compile cardinality aggregation
      *
      * @param  array  $aggregation
