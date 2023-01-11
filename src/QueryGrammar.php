@@ -5,6 +5,7 @@ namespace DesignMyNight\Elasticsearch;
 use DateTime;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Database\Query\Grammars\Grammar as BaseGrammar;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
 use MongoDB\BSON\ObjectID;
@@ -196,7 +197,12 @@ class QueryGrammar extends BaseGrammar
 
         $query = $this->applyOptionsToClause($query, $where);
 
-        if (!empty($where['not']) || ($where['operator'] == '!=' && !is_null($value)) || ($where['operator'] == '=' && is_null($value))) {
+        if (
+            !empty($where['not'])
+            || ($where['operator'] == '!=' && !is_null($value))
+            || ($where['operator'] == '=' && is_null($value))
+            || ($where['operator'] == 'exists' && !$value)
+        ) {
             $query = [
                 'bool' => [
                     'must_not' => [
@@ -1224,7 +1230,7 @@ class QueryGrammar extends BaseGrammar
         return $params;
     }
 
-    public function compileUpdate(Builder $builder, array $values)
+    public function compileUpdate(Builder $builder, $values)
     {
         $clause = $this->compileSelect($builder);
         $clause['body']['conflicts'] = 'proceed';
@@ -1293,7 +1299,7 @@ class QueryGrammar extends BaseGrammar
      */
     public function getDateFormat():string
     {
-        return 'Y-m-d H:i:s';
+        return Config::get('laravel-elasticsearch.date_format', 'Y-m-d H:i:s');
     }
 
     /**
