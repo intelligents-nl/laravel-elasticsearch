@@ -8,7 +8,6 @@ use Illuminate\Database\Query\Grammars\Grammar as BaseGrammar;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
-use MongoDB\BSON\ObjectID;
 
 class QueryGrammar extends BaseGrammar
 {
@@ -649,7 +648,7 @@ class QueryGrammar extends BaseGrammar
      * @param  array  $where
      * @return array
      */
-    protected function compileWhereNot(Builder $builder, $where): array
+    protected function compileWhereMustNot(Builder $builder, $where): array
     {
         return [
             'bool' => [
@@ -706,7 +705,7 @@ class QueryGrammar extends BaseGrammar
         $options        = array_intersect_key($where['options'], array_flip($optionsToApply));
 
         foreach ($options as $option => $value) {
-            $method = 'apply' . studly_case($option) . 'Option';
+            $method = 'apply' . Str::studly($option) . 'Option';
 
             if (method_exists($this, $method)) {
                 $clause = $this->$method($clause, $value, $where);
@@ -764,10 +763,10 @@ class QueryGrammar extends BaseGrammar
     /**
      * Compile all aggregations
      *
-     * @param  Builder  $builder
+     * @param  QueryBuilder $builder
      * @return array
      */
-    protected function compileAggregations(Builder $builder): array
+    protected function compileAggregations(QueryBuilder $builder): array
     {
         $aggregations = [];
 
@@ -1334,21 +1333,10 @@ class QueryGrammar extends BaseGrammar
         // Convert DateTime values to UTCDateTime.
         if ($value instanceof DateTime) {
             $value = $this->convertDateTime($value);
-        } else {
-            if ($value instanceof ObjectID) {
-                // Convert DateTime values to UTCDateTime.
-                $value = $this->convertKey($value);
-            } else {
-                if (is_array($value)) {
-                    foreach ($value as &$val) {
-                        if ($val instanceof DateTime) {
-                            $val = $this->convertDateTime($val);
-                        } else {
-                            if ($val instanceof ObjectID) {
-                                $val = $this->convertKey($val);
-                            }
-                        }
-                    }
+        } elseif (is_array($value)) {
+            foreach ($value as &$val) {
+                if ($val instanceof DateTime) {
+                    $val = $this->convertDateTime($val);
                 }
             }
         }

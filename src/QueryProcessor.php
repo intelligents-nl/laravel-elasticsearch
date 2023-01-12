@@ -24,8 +24,6 @@ class QueryProcessor extends BaseProcessor
 
         $this->aggregations = $results['aggregations'] ?? [];
 
-        $this->query = $query;
-
         $documents = [];
 
         foreach ($results['hits']['hits'] as $result) {

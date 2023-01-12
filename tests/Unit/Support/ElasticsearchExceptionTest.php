@@ -3,8 +3,8 @@
 namespace Tests\Unit\Support;
 
 use DesignMyNight\Elasticsearch\Support\ElasticsearchException;
-use Elasticsearch\Common\Exceptions\ElasticsearchException as BaseElasticsearchException;
-use Elasticsearch\Common\Exceptions\Missing404Exception;
+use Elastic\Elasticsearch\Exception\ElasticsearchException as BaseElasticsearchException;
+use Elastic\Elasticsearch\Exception\InvalidArgumentException;
 use Orchestra\Testbench\TestCase;
 
 class ElasticsearchExceptionTest extends TestCase
@@ -92,7 +92,7 @@ class ElasticsearchExceptionTest extends TestCase
 
         return [
             'missing_index' => [
-                'error'   => new Missing404Exception($missingIndexError),
+                'error'   => new InvalidArgumentException($missingIndexError),
                 'code'    => 'index_not_found_exception',
                 'message' => 'no such index [bob]',
                 'raw'     => json_decode($missingIndexError, true),

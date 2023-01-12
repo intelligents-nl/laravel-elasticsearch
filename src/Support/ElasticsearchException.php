@@ -2,7 +2,7 @@
 
 namespace DesignMyNight\Elasticsearch\Support;
 
-use Elasticsearch\Common\Exceptions\ElasticsearchException as BaseElasticsearchException;
+use Elastic\Elasticsearch\Exception\ElasticsearchException as BaseElasticsearchException;
 use Exception;
 
 class ElasticsearchException extends Exception

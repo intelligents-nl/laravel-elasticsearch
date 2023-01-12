@@ -29,6 +29,13 @@ class QueryBuilder extends BaseBuilder
         'PROCEED' => 'proceed',
     ];
 
+    /**
+     * The database query post processor instance.
+     *
+     * @var \DesignMyNight\Elasticsearch\QueryProcessor
+     */
+    public $processor;
+
     public $type;
 
     public $filters;
@@ -128,12 +135,12 @@ class QueryBuilder extends BaseBuilder
      * Add a where between statement to the query.
      *
      * @param string $column
-     * @param array  $values
+     * @param iterable  $values
      * @param string $boolean
      * @param bool   $not
      * @return self
      */
-    public function whereBetween($column, array $values, $boolean = 'and', $not = false): self
+    public function whereBetween($column, iterable $values, $boolean = 'and', $not = false): self
     {
         $type = 'Between';
 
@@ -235,11 +242,11 @@ class QueryBuilder extends BaseBuilder
      * @param string                                    $boolean
      * @return self
      */
-    public function whereNot($query, $boolean = 'and'): self
+    public function whereMustNot($query, $boolean = 'and'): self
     {
-        $type = 'Not';
+        $type = 'MustNot';
 
-        call_user_func($query, $query = $this->newQuery());
+        //call_user_func($query, $query = $this->newQuery());
 
         $this->wheres[] = compact('query', 'type', 'boolean');
 
@@ -298,7 +305,7 @@ class QueryBuilder extends BaseBuilder
             func_num_args() === 2
         );
 
-        if ($value instanceof DateTimeInterface) {
+        if ($value instanceof \DateTimeInterface) {
             $value = $value->format('N');
         }
 
@@ -629,7 +636,7 @@ class QueryBuilder extends BaseBuilder
         }
 
         throw new \Exception(
-            "$option is an invalid conflict option, valid options are: " . explode(', ', self::DELETE_CONFLICT)
+            "$option is an invalid conflict option, valid options are: " . implode(', ', self::DELETE_CONFLICT)
         );
     }
 
@@ -651,7 +658,7 @@ class QueryBuilder extends BaseBuilder
         }
 
         throw new \Exception(
-            "$option is an invalid conflict option, valid options are: " . explode(', ', self::DELETE_CONFLICT)
+            "$option is an invalid conflict option, valid options are: " . implode(', ', self::DELETE_CONFLICT)
         );
     }
 
@@ -786,7 +793,7 @@ class QueryBuilder extends BaseBuilder
      */
     public function toCompiledQuery(): array
     {
-        return $this->toSql();
+        return (array) $this->toSql();
     }
 
     /**

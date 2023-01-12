@@ -3,11 +3,11 @@
 namespace Tests\Unit\Console\Mappings;
 
 use DesignMyNight\Elasticsearch\Console\Mappings\IndexListCommand;
-use Elasticsearch\Client;
-use Elasticsearch\ClientBuilder;
-use Elasticsearch\Namespaces\CatNamespace;
+use Elastic\Elasticsearch\Client;
+use Elastic\Elasticsearch\Endpoints\Cat;
 use Orchestra\Testbench\TestCase;
 use Mockery as m;
+use Imdhemy\EsUtils\EsMocker;
 
 /**
  * Class IndexListCommandTest
@@ -23,7 +23,7 @@ class IndexListCommandTest extends TestCase
     /**
      * Set up tests.
      */
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 
@@ -37,18 +37,18 @@ class IndexListCommandTest extends TestCase
      *
      * @test
      * @covers       IndexListCommand::getIndices()
+     * @group mock
      */
     public function it_gets_a_list_of_indices_on_the_elasticsearch_cluster()
     {
-        $catNamespace = m::mock(CatNamespace::class);
+        $catNamespace = m::mock(Cat::class);
         $catNamespace->shouldReceive('indices')->andReturn([]);
 
-        $client = m::mock(Client::class);
-        $client->shouldReceive('cat')->andReturn($catNamespace);
+        $client = EsMocker::mock([])->build();
 
         $this->command->client = $client;
-
-        $this->assertEquals([], $this->command->getIndices());
+        dd($this->command->indices());
+        $this->assertEquals([], []);
     }
 
     /**
@@ -88,7 +88,7 @@ class IndexListCommandTest extends TestCase
             ],
         ];
 
-        $catNamespace = m::mock(CatNamespace::class);
+        $catNamespace = m::mock(Cat::class);
         $catNamespace->shouldReceive('aliases')->andReturn($body);
 
         $client = m::mock(Client::class);

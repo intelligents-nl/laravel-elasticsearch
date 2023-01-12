@@ -8,7 +8,7 @@ use DesignMyNight\Elasticsearch\Database\Schema\Blueprint;
 use DesignMyNight\Elasticsearch\Database\Schema\ElasticsearchBuilder;
 use DesignMyNight\Elasticsearch\Database\Schema\Grammars\ElasticsearchGrammar;
 use DesignMyNight\Elasticsearch\Exceptions\QueryException;
-use Elasticsearch\ClientBuilder;
+use Elastic\Elasticsearch\ClientBuilder;
 use Exception;
 use Illuminate\Database\Connection as BaseConnection;
 use Illuminate\Database\Events\QueryExecuted;
@@ -619,7 +619,7 @@ class Connection extends BaseConnection
     {
         try {
             $result = $callback($query, $bindings);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             throw new QueryException($query, $bindings, $e);
         }
 
