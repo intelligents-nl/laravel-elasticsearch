@@ -548,26 +548,25 @@ class Connection extends BaseConnection
     protected function createConnection($hosts, array $config, array $options)
     {
         // apply config to each host
-        $hosts = array_map(function ($host) use ($config) {
+        $username = null;
+        $password = null;
+        $hosts = array_map(function ($host) use ($config, &$username, &$password) {
             $port = !empty($config['port']) ? $config['port'] : 9200;
 
             $scheme = !empty($config['scheme']) ? $config['scheme'] : 'http';
 
             // force https for port 443
             $scheme = (int) $port === 443 ? 'https' : $scheme;
-
-            return [
-                'host' => $host,
-                'port' => $port,
-                'scheme' => $scheme,
-                'user' => !empty($config['username']) ? $config['username'] : null,
-                'pass' => !empty($config['password']) ? $config['password'] : null,
-            ];
+            $username = !empty($config['username']) ? $config['username'] : $username;
+            $password = !empty($config['password']) ? $config['password'] : $password;
+            return $scheme . '://' . $host . ':' . $port;
         }, $hosts);
-
+        
         $clientBuilder = ClientBuilder::create()
             ->setHosts($hosts);
-
+        if ($username && $password) {
+            $clientBuilder->setBasicAuthentication($username, $password);
+        }
         $elasticConfig = config('elasticsearch.connections.' . config('elasticsearch.defaultConnection', 'default'), []);
         // Set additional client configuration
         foreach ($this->configMappings as $key => $method) {
